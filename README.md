@@ -3,8 +3,6 @@
 
 - training cost: 0 rs
 - use only open surce models (hf) else eleven labs free
-- voice tts should be emotion based
-- user as a prompt
 
 
 conversation law:
@@ -26,3 +24,9 @@ future
 # tts
 - https://huggingface.co/hexgrad/Kokoro-82M
 - https://huggingface.co/spaces/MohamedRashad/Orpheus-TTS
+
+
+# TO DO
+- CHECK ALTENECY
+- BUILD EMEMORY
+- FROTEND FOR CHAT OR ATLEAST LOGS OF CHATS
