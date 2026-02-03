@@ -1,6 +1,6 @@
-# Logorrhea: Multi Agent AI Debate System
+# Logorrhea: Multi Agent AI Debate System (work under progress still!)
 
-This is a multi-agent conversational framework that orchestrates autonomous debates between AI agents.
+This is a multi-agent conversational framework with A2A protocol that orchestrates autonomous debates between AI agents.
 
 ## Philosophy
 
@@ -17,8 +17,9 @@ I wanted to see how well they can argue, how well they preserve their statements
 - have cost $0. use entirely open source models (mostly from hf) (rn, it uses free api credits for llm call)
 - use synthetic voices, dont try to impersonate a specific human (debater/philopher)
 
+## Architecture
 
-
+  <img src="Logorrhea.png" />
 
 ## Features
 
