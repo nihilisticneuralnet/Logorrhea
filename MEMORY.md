@@ -1,4 +1,3 @@
-
 ## Three-Tier Memory Architecture
 
 ### 1. **Full Transcript** (Persistent Storage)
@@ -44,11 +43,12 @@ Recent: [Last 50 messages verbatim]
 - **LangChain**: Message trimming, token counting utilities
 - **tiktoken**: Accurate token budget tracking
 - **Custom**: Summarization logic, context windowing policy
+- **Database**: Postgre, SQL
 
 ## Key Design Decisions
 
-✅ **Use existing tools for**: State persistence, token counting, message formatting  
-✅ **Build custom logic for**: Summarization strategy, context window policy  
+**Use existing tools for**: State persistence, token counting, message formatting  
+**Build custom logic for**: Summarization strategy, context window policy  
 
 **Why not build from scratch?**  
 LangGraph handles edge cases (concurrent state updates, checkpointing, error recovery) that would take weeks to implement correctly.
