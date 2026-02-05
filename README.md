@@ -16,6 +16,7 @@ I wanted to see how well they can argue, how well they preserve their statements
 #### My policy while making this project is to:
 - have cost $0. use entirely open source models (mostly from hf) (rn, it uses free api credits for llm call)
 - use synthetic voices, dont try to impersonate a specific human (debater/philopher)
+- since this is a prototype (memory handling is not done properly), but u could refer to MEMORY.md for production based (maybe)
 
 ## Architecture
 
