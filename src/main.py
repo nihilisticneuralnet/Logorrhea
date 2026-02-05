@@ -7,10 +7,12 @@ of all components and provides a complete example.
 
 import logging
 from typing import Optional
-from agents import AgentFactory
+from agents import AgentFactory, DebateAgent
 from conversation_state import ConversationState, ProtocolParameters
 from protocol import A2AProtocol, ProtocolBuilder, ProtocolEvent
 from workflow import DebateWorkflow, WorkflowBuilder
+from tts import DebateTTSGenerator, TTSConfig
+from memory import DebateMemoryManager
 from utils import (
     setup_logging,
     ConversationPersistence,
@@ -87,7 +89,11 @@ class InfiniteDebateSystem:
         agent_1_stance: Optional[str] = None,
         agent_2_stance: Optional[str] = None,
         temperature: float = 1.0,
-        save_results: bool = True
+        save_results: bool = True,
+        enable_tts: bool = False,
+        tts_config: Optional[TTSConfig] = None,
+        enable_memory: bool = False,
+        memory_user_id_prefix: Optional[str] = None
     ) -> ConversationState:
         """
         Run a debate using the A2A Protocol approach.
@@ -99,32 +105,92 @@ class InfiniteDebateSystem:
             agent_2_stance: Stance for agent 2
             temperature: LLM temperature
             save_results: Whether to save results to disk
+            enable_tts: Whether to generate TTS audio
+            tts_config: Optional TTS configuration
+            enable_memory: Whether to use mem0 semantic memory
+            memory_user_id_prefix: Optional prefix for memory user IDs
         
         Returns:
             Final ConversationState
         """
         logger.info(f"Starting debate with Protocol approach - Topic: '{topic}'")
         
-        # Create agents
-        agent_1, agent_2 = AgentFactory.create_debate_pair(
+        # Create memory manager if enabled
+        memory_manager = None
+        if enable_memory:
+            try:
+                memory_manager = DebateMemoryManager(
+                    user_id_prefix=memory_user_id_prefix or "debate"
+                )
+                logger.info("✓ mem0 memory manager initialized")
+            except Exception as e:
+                logger.error(f"Failed to initialize memory manager: {e}", exc_info=True)
+                logger.warning("Continuing without memory")
+                enable_memory = False
+        
+        # Create agents with memory support
+        agent_1 = DebateAgent(
+            agent_id="agent_1",
             api_key=self.api_key,
-            topic=topic,
-            agent_1_stance=agent_1_stance,
-            agent_2_stance=agent_2_stance
+            stance=agent_1_stance or "Support the affirmative position",
+            personality="Analytical and evidence-focused, favoring logical arguments and empirical data",
+            # memory_manager=memory_manager,
+            # enable_memory=enable_memory
         )
         
-        # Create protocol
+        agent_2 = DebateAgent(
+            agent_id="agent_2",
+            api_key=self.api_key,
+            stance=agent_2_stance or "Support the negative position",
+            personality="Philosophical and principle-based, emphasizing ethical considerations and thought experiments",
+            # memory_manager=memory_manager,
+            # enable_memory=enable_memory
+        )
+        
+        if enable_memory:
+            logger.info("✓ Agents created with mem0 memory enabled")
+        
+        # Create protocol with TTS
         protocol = ProtocolBuilder.create_standard_protocol(
             agent_1=agent_1,
             agent_2=agent_2,
             topic=topic,
             max_turns=max_turns,
             temperature=temperature,
-            event_callback=self._protocol_event_handler
+            event_callback=self._protocol_event_handler,
+            enable_tts=enable_tts,
+            tts_config=tts_config
         )
         
         # Run conversation
         final_state = protocol.run_conversation()
+        
+        # Save TTS audio if enabled
+        if enable_tts and protocol.tts_generator:
+            try:
+                audio_path = protocol.tts_generator.save_debate_audio(topic=topic)
+                logger.info(f"✓ Saved debate audio: {audio_path}")
+                
+                # Log TTS statistics
+                stats = protocol.tts_generator.get_statistics()
+                logger.info(
+                    f"TTS Stats: {stats['total_duration']:.2f}s total, "
+                    f"{stats['agent_1_turns']} + {stats['agent_2_turns']} turns"
+                )
+            except Exception as e:
+                logger.error(f"Failed to save TTS audio: {e}", exc_info=True)
+        
+        # Log memory stats if enabled
+        if enable_memory and memory_manager:
+            try:
+                stats_1 = memory_manager.get_memory_statistics("agent_1")
+                stats_2 = memory_manager.get_memory_statistics("agent_2")
+                logger.info(
+                    f"Memory Stats: Agent 1: {stats_1['total_memories']} memories, "
+                    f"Agent 2: {stats_2['total_memories']} memories"
+                )
+            except Exception as e:
+                logger.error(f"Failed to get memory stats: {e}")
         
         # Save results if requested
         if save_results:
@@ -227,6 +293,10 @@ class InfiniteDebateSystem:
             logger.warning(f"Unknown format type: {format_type}")
 
 
+import os
+
+os.environ["GROQ_API_KEY"] = ""
+
 def main():
     """
     Main entry point demonstrating the infinite debate system.
@@ -280,15 +350,28 @@ def main():
     logger.info(f"Agent 2 Stance: {agent_2_stance[:100]}...")
     logger.info("=" * 80)
     
-    # Run debate using Protocol approach
-    logger.info("\n### Running debate with A2A Protocol approach ###\n")
+    # Run debate using Protocol approach with TTS and mem0 memory
+    logger.info("\n### Running debate with A2A Protocol + TTS + mem0 Memory ###\n")
+    
+    # Configure TTS with different voices for each agent
+    tts_config = TTSConfig(
+        agent_1_voice="af_bella",  # Female voice for agent 1
+        agent_2_voice="am_adam",    # Male voice for agent 2
+        sample_rate=24000,
+        enable_realtime=True
+    )
+    
     final_state_protocol = system.run_debate_with_protocol(
         topic=topic,
         max_turns=6,  # Limit turns for demonstration
         agent_1_stance=agent_1_stance,
         agent_2_stance=agent_2_stance,
         temperature=0.9,
-        save_results=True
+        save_results=True,
+        enable_tts=True,
+        tts_config=tts_config,
+        # enable_memory=True,  # ✅ Enable mem0 memory
+        memory_user_id_prefix="hitler_debate"
     )
     
     # Display results
@@ -308,19 +391,17 @@ def main():
     print(f"Average Utterance Length: {metrics.average_utterance_length:.1f} chars")
     print("=" * 80)
     
+    print("\n✨ Features Demonstrated:")
+    print("  ✓ Multi-agent debate with A2A protocol")
+    print("  ✓ Real-time TTS audio generation (Kokoro)")
+    print("  ✓ Semantic memory with mem0 (agents remember context)")
+    print("  ✓ Immutable conversation state")
+    print("  ✓ Event-driven monitoring")
+    print("  ✓ Auto-save to ./audio_outputs/ and ./conversations/")
+    
     # Optional: Run with LangGraph workflow
     logger.info("\n### Alternative: LangGraph Workflow approach available ###")
-    logger.info("Uncomment the workflow section in main() to use LangGraph\n")
-    
-    # Uncomment to run with workflow:
-    # final_state_workflow = system.run_debate_with_workflow(
-    #     topic=topic,
-    #     max_turns=6,
-    #     agent_1_stance=agent_1_stance,
-    #     agent_2_stance=agent_2_stance,
-    #     temperature=0.9,
-    #     save_results=True
-    # )
+    logger.info("See examples.py for more usage patterns\n")
     
     logger.info("Debate demonstration completed successfully")
 
