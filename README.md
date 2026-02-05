@@ -1,4 +1,4 @@
-# Logorrhea: Multi Agent AI Debate System (work under progress still!)
+# Logorrhea: Multi Agent AI Debate System
 
 This is a multi-agent conversational framework with A2A protocol that orchestrates autonomous debates between AI agents.
 
