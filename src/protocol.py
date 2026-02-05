@@ -9,8 +9,10 @@ this protocol - it operates at the system level.
 from typing import Dict, Literal, Optional, Callable
 from enum import Enum
 import logging
+from datetime import datetime
 from conversation_state import ConversationState, ProtocolParameters
 from agents import Agent
+from tts import DebateTTSGenerator, TTSConfig
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +42,8 @@ class A2AProtocol:
         agent_1: Agent,
         agent_2: Agent,
         conversation_state: ConversationState,
-        event_callback: Optional[Callable[[ProtocolEvent, Dict], None]] = None
+        event_callback: Optional[Callable[[ProtocolEvent, Dict], None]] = None,
+        tts_generator: Optional[DebateTTSGenerator] = None
     ):
         """
         Initialize the A2A protocol controller.
@@ -50,11 +53,13 @@ class A2AProtocol:
             agent_2: Second agent instance
             conversation_state: Shared conversation state object
             event_callback: Optional callback for protocol events
+            tts_generator: Optional TTS generator for audio output
         """
         self.agent_1 = agent_1
         self.agent_2 = agent_2
         self.conversation_state = conversation_state
         self.event_callback = event_callback
+        self.tts_generator = tts_generator
         
         self.agents_map = {
             "agent_1": agent_1,
@@ -62,6 +67,8 @@ class A2AProtocol:
         }
         
         logger.info("Initialized A2A Protocol Controller")
+        if self.tts_generator:
+            logger.info("TTS generation enabled")
     
     def _emit_event(
         self,
@@ -138,6 +145,25 @@ class A2AProtocol:
             # Utterance is appended verbatim to ConversationState
             self.conversation_state.append_utterance(agent_id, utterance)
             
+            # Store in Mem0 if available
+            if (hasattr(self.conversation_state, 'mem0_manager') and 
+                self.conversation_state.mem0_manager):
+                try:
+                    from conversation_state import Turn
+                    turn = Turn(
+                        agent_id=agent_id,
+                        utterance=utterance,
+                        timestamp=datetime.now(),
+                        turn_number=self.conversation_state.current_turn_number
+                    )
+                    self.conversation_state.mem0_manager.store_turn(
+                        turn,
+                        self.conversation_state.topic
+                    )
+                    logger.debug(f"Stored turn in Mem0 memory")
+                except Exception as e:
+                    logger.error(f"Mem0 storage error: {e}")
+            
             self._emit_event(
                 ProtocolEvent.UTTERANCE_APPENDED,
                 {
@@ -145,6 +171,19 @@ class A2AProtocol:
                     "turn_number": self.conversation_state.current_turn_number
                 }
             )
+            
+            # Generate TTS audio in real-time if enabled
+            if self.tts_generator and self.tts_generator.config.enable_realtime:
+                try:
+                    logger.info(f"Generating TTS audio for {agent_id}...")
+                    self.tts_generator.add_utterance(
+                        text=utterance,
+                        agent_id=agent_id,
+                        turn_number=self.conversation_state.current_turn_number,
+                        add_pause=True
+                    )
+                except Exception as e:
+                    logger.error(f"TTS generation error: {e}", exc_info=True)
             
             self._emit_event(
                 ProtocolEvent.TURN_COMPLETED,
@@ -277,7 +316,9 @@ class ProtocolBuilder:
         topic: str,
         max_turns: Optional[int] = None,
         temperature: float = 1.0,
-        event_callback: Optional[Callable] = None
+        event_callback: Optional[Callable] = None,
+        enable_tts: bool = False,
+        tts_config: Optional[TTSConfig] = None
     ) -> A2AProtocol:
         """
         Create a standard debate protocol.
@@ -289,6 +330,8 @@ class ProtocolBuilder:
             max_turns: Maximum turns (None for infinite)
             temperature: LLM temperature
             event_callback: Optional event callback
+            enable_tts: Whether to enable TTS generation
+            tts_config: Optional TTS configuration
         
         Returns:
             Configured A2AProtocol instance
@@ -303,11 +346,18 @@ class ProtocolBuilder:
             protocol_params=protocol_params
         )
         
+        # Create TTS generator if enabled
+        tts_generator = None
+        if enable_tts:
+            tts_generator = DebateTTSGenerator(config=tts_config)
+            logger.info("TTS generation enabled for protocol")
+        
         protocol = A2AProtocol(
             agent_1=agent_1,
             agent_2=agent_2,
             conversation_state=conversation_state,
-            event_callback=event_callback
+            event_callback=event_callback,
+            tts_generator=tts_generator
         )
         
         logger.info(
@@ -322,7 +372,8 @@ class ProtocolBuilder:
         agent_1: Agent,
         agent_2: Agent,
         conversation_state: ConversationState,
-        event_callback: Optional[Callable] = None
+        event_callback: Optional[Callable] = None,
+        tts_generator: Optional[DebateTTSGenerator] = None
     ) -> A2AProtocol:
         """
         Create a protocol with custom conversation state.
@@ -332,6 +383,7 @@ class ProtocolBuilder:
             agent_2: Second agent
             conversation_state: Pre-configured conversation state
             event_callback: Optional event callback
+            tts_generator: Optional TTS generator
         
         Returns:
             Configured A2AProtocol instance
@@ -340,7 +392,8 @@ class ProtocolBuilder:
             agent_1=agent_1,
             agent_2=agent_2,
             conversation_state=conversation_state,
-            event_callback=event_callback
+            event_callback=event_callback,
+            tts_generator=tts_generator
         )
         
         logger.info("Created custom protocol")
