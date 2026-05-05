@@ -2,14 +2,10 @@
 
 This is a multi-agent conversational framework with A2A protocol that orchestrates autonomous debates between AI agents.
 
-## Philosophy
-
-I wanted to see how well they can argue, how well they preserve their statements (no bullshit like, 'you're absolutely right!'). We ask them questions, they respond, and the conversation ends. But what happens when we remove ourselves from the loop entirely? The goal of this project is to understand what emerges when two AI agents are given a contentious topic and told simply: debate, indefinitely?
-
-#### Some questions i want to see being answered:
+Some questions i want to see being answered:
 - How arguments evolve and deteriorate over long conversations?
 - Whether novel insights emerge from extended dialectics?
-- Hallucinations: Do they converge toward truth, or drift into some absurdity?
+- Hallucinations: Do they converge towards a point, or shift  into some absurdity?
 - How positions shift (or don't) without external validation?
 - At what point do arguments become circular?
 
@@ -18,6 +14,7 @@ I wanted to see how well they can argue, how well they preserve their statements
 - use synthetic voices, dont try to impersonate a specific human (debater/philopher)
 - since this is a prototype (memory handling is not done properly), but u could refer to MEMORY.md (which is a overkill for this prototype) (testing: context window tuning, with longer debates (100+ turns) to see if quality degrades,  log turn numbers where agents start repeating or forgeting) 
 
+
 ## Architecture
 
   <img src="Logorrhea.png" />
@@ -25,11 +22,8 @@ I wanted to see how well they can argue, how well they preserve their statements
 ## Features
 
 - **Stateless Agents**: Pure functions that read state and generate responses
-- **Immutable Transcript**: Conversation history cannot be retroactively altered
 - **Explicit Protocol Control**: Turn-taking governed at the system level, not by agents
-- **LangGraph Integration**: Observable, structured workflow execution
 - **Real-time TTS**: Kokoro-powered voice synthesis with 8 distinct voices
-- **Single Audio Output**: Entire debates combined into one continuous WAV file
 
 
 ## 📦 Installation
@@ -146,15 +140,10 @@ tts_config = TTSConfig(
 
 ## Future
 
-- [] debate between more than 2 people
 - [] user can control variables (custom prompt, temp, small vs big params)
 - [] Introduce an external “environment token” that changes slowly (like temperature or season)
 - [] user can interrupt in bt (idk why might delte this)
 - [] never eneding conversation util paused (memory handle)
-
-
-# TO DO
-- [] CHECK LATENCY (due to open spurce models)
 - [] FROTEND FOR CHAT OR ATLEAST LOGS OF CHATS
 
 ## References:
