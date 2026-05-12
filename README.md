@@ -4,12 +4,11 @@ A multi-agent conversational framework that orchestrates autonomous debates betw
 
 ## Philosophy
 
-Some questions I want to see being answered:
+Some questions I like to see being answered:
 - How arguments evolve and deteriorate over long conversations?
 - Whether novel insights emerge from extended dialectics?
-- Hallucinations: Do they converge towards a point, or shift into some absurdity?
+- Do arguments become circular, do they converge towards a point, or shift into some absurdity?
 - How positions shift (or don't) without external validation?
-- At what point do arguments become circular?
 
 
 """
@@ -20,12 +19,7 @@ Five-layer memory model:
   L4  Agent-Private Memory        — beliefs, ideology, strategy, trust
   L5  Global Shared Memory        — world state, shared facts, debate history
 
-Storage backend: SQLite + LanceDB (zero-dependency, embeddable, pgvector-compatible
-interface so swapping to PostgreSQL+pgvector requires only changing the
-DatabaseBackend implementation).
 
-Key design choices
-------------------
 * Event-boundary compression  — summaries are triggered by semantic shifts
   (topic change, contradiction, resolution) NOT by fixed turn windows.
 * Hybrid retrieval             — vector + keyword + temporal + graph traversal.
