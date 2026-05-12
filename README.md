@@ -11,27 +11,6 @@ Some questions I like to see being answered:
 - How positions shift (or don't) without external validation?
 
 
-"""
-Five-layer memory model:
-  L1  Short-Term Working Memory   — verbatim recent turns (ring buffer)
-  L2  Episodic Memory             — structured semantic events / claim graph
-  L3  Semantic Memory             — cross-conversation factual knowledge
-  L4  Agent-Private Memory        — beliefs, ideology, strategy, trust
-  L5  Global Shared Memory        — world state, shared facts, debate history
-
-
-* Event-boundary compression  — summaries are triggered by semantic shifts
-  (topic change, contradiction, resolution) NOT by fixed turn windows.
-* Hybrid retrieval             — vector + keyword + temporal + graph traversal.
-* Claim graph                  — nodes=claims/evidence/hypotheses,
-                                 edges=support/contradict/derive/consensus.
-* Provenance on every object   — speaker, turns, timestamps, confidence,
-                                 retrieval_count, conversation_lineage.
-* Semantic deduplication       — cosine-similarity gate before insert.
-* Memory decay                 — exponential staleness penalty on retrieval score.
-* Stochastic / novelty / contradiction retrieval — breaks feedback loops.
-"""
-
 ## Architecture
 
   <img src="Logorrhea.png" />
