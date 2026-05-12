@@ -12,8 +12,6 @@ Some questions I want to see being answered:
 - At what point do arguments become circular?
 
 
-
-
 """
 Five-layer memory model:
   L1  Short-Term Working Memory   — verbatim recent turns (ring buffer)
@@ -58,7 +56,7 @@ cd Logorrhea
 pip install -r requirements.txt
 
 # Insert your API keys
-export GROQ_API_KEY="your_groq_api_key_here" # or hf_token (any 1)
+export GROQ_API_KEY="your_groq_api_key_here" # or hf_token (any one)
 
 # Run tests
 cd src
@@ -69,6 +67,12 @@ python app.py
 ```
 
 
+## Example 
+
+Topic: Would you go back in time and kill baby Hitler?
+
+
+https://github.com/user-attachments/assets/a88e1270-bbd9-4245-840c-c2eef44f189c
 
 
 
