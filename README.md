@@ -44,39 +44,30 @@ Key design choices
 
   <img src="Logorrhea.png" />
 
-## Features
 
-- **Stateless Agents**: Pure functions that read state and generate responses
-- **Explicit Protocol Control**: Turn-taking governed at the system level, not by agents
-- **Real-time TTS**: Kokoro-powered voice synthesis with 8 distinct voices
+## Installation
 
-
-## 📦 Installation
+### Setup
 
 ```bash
 # Clone the repository
 git clone https://github.com/nihilisticneuralnet/Logorrhea.git
 cd Logorrhea
 
-# Run setup script (handles everything)
-chmod +x setup.sh
-./setup.sh
-
-# Or manual setup:
-python -m venv venv
-source venv/bin/activate
+# Install dependencies
 pip install -r requirements.txt
 
-# Install espeak-ng for TTS (required)
-# Linux:
-sudo apt-get install espeak-ng
-# macOS:
-brew install espeak-ng
+# Insert your API keys
+export GROQ_API_KEY="your_groq_api_key_here" # or hf_token (any 1)
 
-# Configure API key
-cp .env.example .env
-# Edit .env and add your GROQ_API_KEY
+# Run tests
+cd src
+python main.py
+
+# For gradio interface, use
+python app.py
 ```
+
 
 
 
