@@ -9,3 +9,9 @@ gradio>=4.0.0
 mem0ai>=0.0.8
 supabase>=2.0.0
 qdrant-client>=1.7.0
+lancedb>=0.6.0
+sentence-transformers>=3.0.0
+transformers>=4.40.0
+accelerate>=0.30.0
+bitsandbytes>=0.43.0
+# flash_attn
