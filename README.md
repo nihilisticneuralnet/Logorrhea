@@ -13,7 +13,7 @@ Some questions I like to see being answered:
 
 ## Architecture
 
-  <img src="Logorrhea.png" />
+  <img src="archlogo.png" />
 
 
 ## Installation
