@@ -52,3 +52,6 @@ https://github.com/user-attachments/assets/a88e1270-bbd9-4245-840c-c2eef44f189c
 - https://jamez.it/project/the-infinite-conversation/
 - https://huggingface.co/hexgrad/Kokoro-82M
 - https://huggingface.co/spaces/MohamedRashad/Orpheus-TTS
+- https://www.youtube.com/watch?v=1zEjQ_LILJA
+- https://www.youtube.com/@JonOleksiuk/videos
+- https://arxiv.org/abs/2305.19118
